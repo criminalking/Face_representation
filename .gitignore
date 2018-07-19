@@ -104,8 +104,7 @@ venv.bak/
 .mypy_cache/
 
 # this repo
-model/*.bin
-model/*.caffemodel
-model/*.prototxt
-input/*.jpg
-input/*.png
+model/*
+!model/empty.md
+input/*
+!input/empty.md
