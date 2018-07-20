@@ -21,10 +21,10 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 
 import numpy as np
-from numpy import linalg as LA
 import cv2
 
 from src.light_cnn import LightCNN_9Layers, LightCNN_29Layers, LightCNN_29Layers_v2
+from src.util import print_result, read_list
 
 parser = argparse.ArgumentParser(description='PyTorch ImageNet Feature Extracting')
 parser.add_argument('--arch', '-a', metavar='ARCH', default='LightCNN')
@@ -39,41 +39,6 @@ parser.add_argument('--save_path', default='', type=str, metavar='PATH',
                     help='save root path for features of face images.')
 parser.add_argument('--num_classes', default=79077, type=int,
                     metavar='N', help='mini-batch size (default: 79077)')
-
-
-def print_result(img_list, features):
-    num_images = len(img_list)
-    print ('Images:')
-    for i in range(num_images):
-        print ('%1d: %s' % (i, img_list[i]))
-    print ('')
-
-    # Print distance matrix
-    print ('Distance matrix')
-    print ('    ', end='')
-    for i in range(num_images):
-        print ('      %1d     ' % i, end='')
-    print ('')
-    for i in range(num_images):
-        print ('%1d  ' % i, end='')
-        for j in range(num_images):
-            distance = compute_l2_distance(features[i], features[j])
-            print ('  %8.4f  ' % distance, end='')
-        print ('')
-
-    # Print similarity matrix
-    print ('')
-    print ('Similarity matrix')
-    print ('    ', end='')
-    for i in range(num_images):
-        print ('    %1d     ' % i, end='')
-    print ('')
-    for i in range(num_images):
-        print ('%1d  ' % i, end='')
-        for j in range(num_images):
-            similarity = compute_cos_similarity(features[i], features[j])
-            print ('  %1.4f  ' % similarity, end='')
-        print ('')
 
 
 def main():
@@ -128,17 +93,6 @@ def main():
     print_result(img_list, featurelist)
 
 
-def read_list(list_path):
-    img_list = []
-    with open(list_path, 'r') as f:
-        for line in f.readlines()[0:]:
-            if line[0] == '#':
-                continue
-            img_path = line.strip().split()
-            img_list.append(img_path[0])
-    print('There are {} images..'.format(len(img_list)))
-    return img_list
-
 def save_feature(save_path, img_name, features):
     img_path = os.path.join(save_path, img_name)
     img_dir  = os.path.dirname(img_path) + '/';
@@ -149,22 +103,7 @@ def save_feature(save_path, img_name, features):
     fid   = open(fname, 'wb')
     fid.write(features) # 256 dims
     fid.close()
-
-def compute_cos_similarity(feature1, feature2):
-    feature1 = feature1.reshape(-1)
-    feature2 = feature2.reshape(-1)
-    try:
-        similarity = np.dot(feature1,feature2) \
-                     / (LA.norm(feature1) * LA.norm(feature2))
-    except ZeroDivisionError:
-        print("Zero division error here!\n")
-    return similarity
-
-def compute_l2_distance(feature1, feature2):
-    feature1 = feature1.reshape(-1)
-    feature2 = feature2.reshape(-1)
-    distance = np.sum((feature1 - feature2)**2)
-    return distance
+    
 
 if __name__ == '__main__':
     main()

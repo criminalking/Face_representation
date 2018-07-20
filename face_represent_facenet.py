@@ -36,6 +36,7 @@ import copy
 import argparse
 import src.facenet as facenet
 import src.align.detect_face as detect_face
+from src.util import print_result, read_list
 
 def main(args):
 
@@ -55,40 +56,8 @@ def main(args):
             # Run forward pass to calculate embeddings
             feed_dict = { images_placeholder: images, phase_train_placeholder:False }
             emb = sess.run(embeddings, feed_dict=feed_dict)
-            
-            nrof_images = len(image_paths)
 
-            print('Images:')
-            for i in range(nrof_images):
-                print('%1d: %s' % (i, image_paths[i]))
-            print('')
-            
-            # Print distance matrix
-            print('Distance matrix')
-            print('    ', end='')
-            for i in range(nrof_images):
-                print('    %1d     ' % i, end='')
-            print('')
-            for i in range(nrof_images):
-                print('%1d  ' % i, end='')
-                for j in range(nrof_images):
-                    dist = np.sqrt(np.sum(np.square(np.subtract(emb[i,:], emb[j,:]))))
-                    print('  %1.4f  ' % dist, end='')
-                print('')
-
-            print('')
-            # Print similarity matrix
-            print('Similarity matrix')
-            print('    ', end='')
-            for i in range(nrof_images):
-                print('    %1d     ' % i, end='')
-            print('')
-            for i in range(nrof_images):
-                print('%1d  ' % i, end='')
-                for j in range(nrof_images):
-                    simi = compute_cos_similarity(emb[i,:], emb[j,:])
-                    print('  %6.4f  ' % simi, end='')
-                print('')
+            print_result(image_paths, emb)
 
 
 def load_and_align_data(image_list, image_size, margin, gpu_memory_fraction):
@@ -129,31 +98,8 @@ def load_and_align_data(image_list, image_size, margin, gpu_memory_fraction):
     return images, image_paths
 
 
-def compute_cos_similarity(feature1, feature2):
-    feature1 = feature1.reshape(-1)
-    feature2 = feature2.reshape(-1)
-    try:
-        similarity = np.dot(feature1,feature2) \
-                     / (LA.norm(feature1) * LA.norm(feature2))
-    except ZeroDivisionError:
-        print("Zero division error here!\n")
-    return similarity
-
-
-def read_list(filename):
-    img_list = []
-    with open(filename, 'r') as f:
-        for line in f.readlines()[0:]:
-            if line[0] == '#':
-                continue
-            img_path = line.strip().split()
-            img_list.append(img_path[0])
-    return img_list
-
-
-def parse_arguments(argv):
+if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    
     parser.add_argument('model', type=str, 
         help='Could be either a directory containing the meta_file and ckpt_file or a model protobuf (.pb) file')
     parser.add_argument('--image_list', type=str, default='input/list.txt', help='Image list to compare')
@@ -162,8 +108,6 @@ def parse_arguments(argv):
     parser.add_argument('--margin', type=int,
         help='Margin for the crop around the bounding box (height, width) in pixels.', default=44)
     parser.add_argument('--gpu_memory_fraction', type=float,
-        help='Upper bound on the amount of GPU memory that will be used by the process.', default=1.0)
-    return parser.parse_args(argv)
-
-if __name__ == '__main__':
-    main(parse_arguments(sys.argv[1:]))
+        help='Upper bound on the amount of GPU memory that will be used by the process.', default=1.0
+    args = parser.parse_args()
+    main(args)

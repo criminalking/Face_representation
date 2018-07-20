@@ -109,3 +109,5 @@ model/*
 input/*
 !input/empty.md
 facerep/
+
+test_all.sh

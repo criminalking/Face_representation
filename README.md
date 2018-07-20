@@ -9,7 +9,7 @@ We tried three state-of-the-art methods to extract feature:
 
 # Dependencies
 
-Please install [caffe](http://caffe.berkeleyvision.org/) for Do we, and then run:
+Please install [caffe](http://caffe.berkeleyvision.org/) for Do we, and then run:  
 ```pip install -r requirements.txt```  
 for other python packages.  
 Models used for test please download in [Facenet](https://github.com/davidsandberg/facenet) and [ResNet-101 for Face Recognition](https://docs.google.com/forms/d/e/1FAIpQLSdterS7LCr2hVb-MJWhbdI6AgDDvN0qL45CptoGCbFMbt1F8g/viewform). You do not need to put LightCNN model in model/.
