@@ -108,3 +108,4 @@ model/*
 !model/empty.md
 input/*
 !input/empty.md
+facerep/

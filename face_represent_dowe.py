@@ -1,4 +1,5 @@
 from __future__ import print_function
+
 import numpy as np
 from PIL import Image
 from numpy import linalg as LA
@@ -19,7 +20,6 @@ def read_list(filename):
 
 
 def read_image(filename):
-    # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
     im = Image.open(filename)
     assert (im.size[0] == im.size[1]), "You need crop!\n"
     im = im.resize((224, 224))
@@ -27,7 +27,7 @@ def read_image(filename):
     in_ = in_[:,:,::-1]
     in_ = in_ / 255.0
     in_ = (in_ - np.array((0.485,0.456,0.406))) / np.array((0.229,0.224,0.225))
-    in_ = in_.transpose((2,0,1))
+    in_ = in_.transpose((2,0,1)) # C x H x W
     return in_
 
 
@@ -102,7 +102,7 @@ def main(args):
 
     img_list = read_list(args.img_list)
     features = [] #len(img_list)
-    for i, img_name in enumerate(img_list):
+    for img_name in img_list:
         in_ = read_image(img_name)
         features.append(get_feature(net, in_))
 
