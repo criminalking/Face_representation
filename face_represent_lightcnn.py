@@ -71,6 +71,8 @@ def main():
     count       = 0
     input       = torch.zeros(1, 1, 128, 128)
     featurelist = []
+
+    start = time.time()
     for img_name in img_list:
         count = count + 1
         img   = cv2.imread(img_name, cv2.IMREAD_GRAYSCALE)
@@ -80,17 +82,18 @@ def main():
         img   = transform(img)
         input[0,:,:,:] = img
 
-        start = time.time()
         if args.cuda:
             input = input.cuda()
         input_var   = torch.autograd.Variable(input, volatile=True)
         _, features = model(input_var)
-        end         = time.time() - start
-        print("{}({}/{}). Time: {}".format(img_name, count, len(img_list), end))
+
         #save_feature(args.save_path, img_name, features.data.cpu().numpy()[0])
         featurelist.append(features.data.cpu().numpy()[0])
+        print_result(img_list, featurelist)
 
-    print_result(img_list, featurelist)
+    end = time.time() - start
+    print("LightCNN Time: {}".format(end))
+    
 
 
 def save_feature(save_path, img_name, features):
@@ -103,7 +106,7 @@ def save_feature(save_path, img_name, features):
     fid   = open(fname, 'wb')
     fid.write(features) # 256 dims
     fid.close()
-    
+
 
 if __name__ == '__main__':
     main()

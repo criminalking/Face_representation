@@ -5,6 +5,7 @@ from PIL import Image
 
 import caffe
 import argparse
+import time
 
 from src.util import read_list, print_result
 
@@ -39,14 +40,17 @@ def main(args):
     # load net
     net = caffe.Net(args.prototxt, args.caffemodel, caffe.TEST)
 
+    start = time.time() 
+
     img_list = read_list(args.img_list)
     features = [] #len(img_list)
     for img_name in img_list:
         in_ = read_image(img_name)
         features.append(get_feature(net, in_))
-
     print_result(img_list, features)
 
+    end = time.time() - start
+    print("Dowe Time: {}".format(end))
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description='Face representation')

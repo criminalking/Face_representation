@@ -34,9 +34,11 @@ import sys
 import os
 import copy
 import argparse
+import time
+
 import src.facenet as facenet
 import src.align.detect_face as detect_face
-from src.util import print_result, read_list
+from src.util import *
 
 def main(args):
 
@@ -44,10 +46,12 @@ def main(args):
     with tf.Graph().as_default():
 
         with tf.Session() as sess:
-      
+
             # Load the model
             facenet.load_model(args.model)
-    
+
+            start = time.time()
+
             # Get input and output tensors
             images_placeholder = tf.get_default_graph().get_tensor_by_name("input:0")
             embeddings = tf.get_default_graph().get_tensor_by_name("embeddings:0")
@@ -58,6 +62,9 @@ def main(args):
             emb = sess.run(embeddings, feed_dict=feed_dict)
 
             print_result(image_paths, emb)
+
+            end = time.time() - start
+            print("Facenet Time: {}".format(end))
 
 
 def load_and_align_data(image_list, image_size, margin, gpu_memory_fraction):
@@ -108,6 +115,6 @@ if __name__ == '__main__':
     parser.add_argument('--margin', type=int,
         help='Margin for the crop around the bounding box (height, width) in pixels.', default=44)
     parser.add_argument('--gpu_memory_fraction', type=float,
-        help='Upper bound on the amount of GPU memory that will be used by the process.', default=1.0
+        help='Upper bound on the amount of GPU memory that will be used by the process.', default=1.0)
     args = parser.parse_args()
     main(args)
