@@ -42,23 +42,24 @@ from src.util import *
 
 def main(args):
 
-    images, image_paths = load_and_align_data(args.image_list, args.image_size, args.margin, args.gpu_memory_fraction)
+    images, image_paths = load_and_align_data(args.image_list, args.image_size, args.margin, args.gpu_memory_fraction) # (N, 160, 160, 3)
+
     with tf.Graph().as_default():
 
         with tf.Session() as sess:
 
             # Load the model
-            facenet.load_model(args.model)
-
-            start = time.time()
+            saver = facenet.load_model(args.model)
 
             # Get input and output tensors
             images_placeholder = tf.get_default_graph().get_tensor_by_name("input:0")
             embeddings = tf.get_default_graph().get_tensor_by_name("embeddings:0")
             phase_train_placeholder = tf.get_default_graph().get_tensor_by_name("phase_train:0")
 
+            start = time.time()
+
             # Run forward pass to calculate embeddings
-            feed_dict = { images_placeholder: images, phase_train_placeholder:False }
+            feed_dict = { images_placeholder: images, phase_train_placeholder:False}
             emb = sess.run(embeddings, feed_dict=feed_dict)
 
             print_result(image_paths, emb)
@@ -111,7 +112,7 @@ if __name__ == '__main__':
         help='Could be either a directory containing the meta_file and ckpt_file or a model protobuf (.pb) file')
     parser.add_argument('--image_list', type=str, default='input/list.txt', help='Image list to compare')
     parser.add_argument('--image_size', type=int,
-        help='Image size (height, width) in pixels.', default=160)
+                        help='Image size (height, width) in pixels.', default=160)
     parser.add_argument('--margin', type=int,
         help='Margin for the crop around the bounding box (height, width) in pixels.', default=44)
     parser.add_argument('--gpu_memory_fraction', type=float,
